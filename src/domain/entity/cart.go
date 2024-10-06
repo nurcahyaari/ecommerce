@@ -1,6 +1,11 @@
 package entity
 
 import (
+	"errors"
+	"fmt"
+	"strings"
+	"time"
+
 	"github.com/shopspring/decimal"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -120,6 +125,76 @@ func (cf CartFilter) Filter() bson.M {
 type MapCartById map[int64]Cart
 
 type Carts []Cart
+
+func (cs Carts) UserAddressStrs() string {
+	userAddresses := []string{}
+	for _, c := range cs {
+		userAddresses = append(userAddresses, fmt.Sprintf("%d", c.UserAddressId))
+	}
+	return strings.Join(userAddresses, ",")
+}
+
+func (cs Carts) Order(userId int64, mapUserAddress MapUserAddress) (Order, error) {
+	var (
+		order         = Order{}
+		orderReceipts = OrderReceipts{}
+	)
+
+	for _, c := range cs {
+		totalPrice, err := decimal.NewFromString(c.TotalPrice.String())
+		if err != nil {
+			return Order{}, err
+		}
+
+		orderDetails := OrderDetails{}
+		for _, ci := range c.CartItems {
+			totalPrice, err := decimal.NewFromString(ci.TotalPrice.String())
+			if err != nil {
+				return Order{}, err
+			}
+
+			pricePerProduct, err := decimal.NewFromString(ci.PricePerProduct.String())
+			if err != nil {
+				return Order{}, err
+			}
+			orderDetails = append(orderDetails, OrderDetail{
+				ProdutId:        ci.ProductId,
+				Quantity:        ci.Quantity,
+				PricePerProduct: pricePerProduct,
+				TotalPrice:      totalPrice,
+			})
+		}
+
+		userAddress, ok := mapUserAddress[c.UserAddressId]
+		if !ok {
+			return Order{}, errors.New("err: cart is not valid because user doesn't have the address")
+		}
+
+		orderAddress := OrderAddress{
+			UserAddressId: userAddress.Id,
+			UserId:        userAddress.UserId,
+			FullAddress:   userAddress.FullAddress,
+		}
+
+		orderReceipts = append(orderReceipts, OrderReceipt{
+			TotalQuantity: c.TotalQuantity,
+			TotalPrice:    totalPrice,
+			OrderDetails:  orderDetails,
+			OrderAddress:  orderAddress,
+		})
+
+	}
+
+	order.OrderReceipts = orderReceipts
+	order.OrderStatus = Pending
+	order.UserId = userId
+	order.ExpiredOrder = null.TimeFrom(time.Now().Add(10 * time.Minute))
+	order.SumTotalPrice()
+	order.SumTotalQuantity()
+	order.GenerateOrderCode()
+
+	return order, nil
+}
 
 func (cs Carts) One() (Cart, bool) {
 	if len(cs) == 0 {

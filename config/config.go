@@ -42,12 +42,13 @@ type Config struct {
 
 	DB struct {
 		MySQL struct {
-			Host        string `mapstructure:"HOST"`
-			Port        int    `mapstructure:"PORT"`
-			Name        string `mapstructure:"NAME"`
-			User        string `mapstructure:"USER"`
-			Pass        string `mapstructure:"PASS"`
-			MaxPoolSize int    `mapstructure:"MAX_POOL_SIZE"`
+			Host          string `mapstructure:"HOST"`
+			Port          int    `mapstructure:"PORT"`
+			Name          string `mapstructure:"NAME"`
+			User          string `mapstructure:"USER"`
+			Pass          string `mapstructure:"PASS"`
+			MaxPoolSize   int    `mapstructure:"MAX_POOL_SIZE"`
+			WithMigration bool   `mapstructure:"WITH_MIGRATION"`
 		} `mapstructure:"MYSQL"`
 		MongoDB struct {
 			Host        string `mapstructure:"HOST"`

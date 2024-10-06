@@ -132,10 +132,37 @@ func (f ProductFilter) ComposeFilter() (string, []interface{}, error) {
 	return whereClause, args, nil
 }
 
+type ReserveStock struct {
+	Success bool   `db:"-"`
+	Message string `db:"-"`
+	ProductStock
+}
+
+type ReserveStocks []ReserveStock
+
 type ProductStock struct {
 	ProductId     int64 `db:"product_id"`
 	StockReserved uint  `db:"stock_reserved"`
 	StockOnHand   uint  `db:"stock_on_hand"`
+	IsRevert      bool  `db:"-"`
+}
+
+// returns with this statement
+// stockOnHand, stockReserved, id
+func (ps ProductStock) ReserveStockArgs() []any {
+	return []any{
+		ps.StockReserved,
+		ps.StockReserved,
+		ps.ProductId,
+	}
+}
+
+// it will reduce the reserve stock after the order was processed
+func (ps ProductStock) UpdateStockArgs() []any {
+	return []any{
+		ps.StockReserved,
+		ps.ProductId,
+	}
 }
 
 type MapProductStock map[int64]ProductStock

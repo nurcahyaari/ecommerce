@@ -65,3 +65,12 @@ func (r *CartRepository) UpsertCart(ctx context.Context, cart entity.Cart) error
 
 	return nil
 }
+
+func (r *CartRepository) DeleteCart(ctx context.Context, filter entity.CartFilter) error {
+	collection := r.db.DB.Collection(r.collectionName)
+	res := collection.FindOneAndDelete(ctx, filter.Filter())
+	if err := res.Err(); err != nil {
+		return err
+	}
+	return nil
+}

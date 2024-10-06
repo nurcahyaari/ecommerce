@@ -50,6 +50,7 @@ var ProductStockQuery = struct {
 	Select       string
 	Count        string
 	ReserveStock string
+	RevertStock  string
 	UpdateStock  string
 }{
 	Select: `
@@ -64,17 +65,23 @@ var ProductStockQuery = struct {
 		UPDATE product_stock 
 		SET 
 			stock_on_hand = stock_on_hand - ?,
-			stock_reserved = stock_reserved + ?,
-			updated_by = ?
+			stock_reserved = stock_reserved + ?
 		WHERE
-			id = ?
+			product_id = ?
+	`,
+	RevertStock: `
+		UPDATE product_stock 
+		SET 
+			stock_on_hand = stock_on_hand + ?,
+			stock_reserved = stock_reserved - ?
+		WHERE
+			product_id = ?
 	`,
 	UpdateStock: `
 		UPDATE product_stock 
 		SET 
-			stock_reserved = stock_reserved - ?,
-			updated_by = ?
+			stock_reserved = stock_reserved - ?
 		WHERE
-			id = ?
+			product_id = ?
 	`,
 }

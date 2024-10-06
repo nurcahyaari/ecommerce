@@ -11,6 +11,7 @@ type HttpHandle struct {
 	productService   service.ProductServicer
 	warehouseService service.WarehouseServicer
 	cartService      service.CartServicer
+	orderService     service.OrderServicer
 }
 
 func (h HttpHandle) Router(r *chi.Mux) {
@@ -34,6 +35,10 @@ func (h HttpHandle) Router(r *chi.Mux) {
 				r.Get("/", h.GetCart)
 				r.Post("/", h.AddItemToCart)
 			})
+
+			r.Route("/orders", func(r chi.Router) {
+				r.Post("/", h.CreateOrder)
+			})
 		})
 	})
 }
@@ -44,6 +49,7 @@ func NewHttpHandler(
 	productService service.ProductServicer,
 	warehouseService service.WarehouseServicer,
 	cartService service.CartServicer,
+	orderService service.OrderServicer,
 ) *HttpHandle {
 	httpHandle := &HttpHandle{
 		userService:      userService,
@@ -51,6 +57,7 @@ func NewHttpHandler(
 		productService:   productService,
 		warehouseService: warehouseService,
 		cartService:      cartService,
+		orderService:     orderService,
 	}
 	return httpHandle
 }

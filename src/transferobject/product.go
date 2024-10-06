@@ -177,3 +177,66 @@ func NewResponseGetProduct(product entity.Product) ResponseGetProduct {
 		Product: NewProduct(product),
 	}
 }
+
+type RequestReserveStoct struct {
+	Data ReserveStocks
+}
+
+type ReserveStock struct {
+	ProductId         int64  `json:"product_id"`
+	Quantity          uint   `json:"quantity_reserved"`
+	QuantityAvailable uint   `json:"quantity_available"`
+	IsRevert          bool   `json:"is_revert"`
+	Success           bool   `json:"success"`
+	Message           string `json:"message"`
+}
+
+func NewReserveStock(data entity.ReserveStock) ReserveStock {
+	return ReserveStock{
+		ProductId: data.ProductId,
+		Quantity:  data.StockReserved,
+		IsRevert:  data.IsRevert,
+		Message:   data.Message,
+		Success:   data.Success,
+	}
+}
+
+func (rr ReserveStock) ProductStock() entity.ProductStock {
+	return entity.ProductStock{
+		ProductId:     rr.ProductId,
+		StockReserved: rr.Quantity,
+		IsRevert:      rr.IsRevert,
+	}
+}
+
+type ReserveStocks []ReserveStock
+
+func NewReserveStocks(data entity.ReserveStocks) ReserveStocks {
+	rrs := ReserveStocks{}
+
+	for _, r := range data {
+		rrs = append(rrs, NewReserveStock(r))
+	}
+
+	return rrs
+}
+
+func (rrs ReserveStocks) ProductStocks() entity.ProductStocks {
+	pss := entity.ProductStocks{}
+
+	for _, rr := range rrs {
+		pss = append(pss, rr.ProductStock())
+	}
+
+	return pss
+}
+
+type ResponseReserveStock struct {
+	Data ReserveStocks `json:"reserve_stock"`
+}
+
+func NewResponseReserveStock(data entity.ReserveStocks) ResponseReserveStock {
+	return ResponseReserveStock{
+		Data: NewReserveStocks(data),
+	}
+}

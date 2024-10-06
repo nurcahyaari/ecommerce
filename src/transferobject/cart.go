@@ -21,6 +21,33 @@ type Cart struct {
 	CartItems     CartItems       `json:"cart_items"`
 }
 
+func (c Cart) Entity() (entity.Cart, error) {
+	id, err := primitive.ObjectIDFromHex(c.Id)
+	if err != nil {
+		return entity.Cart{}, err
+	}
+
+	totalPrice, err := primitive.ParseDecimal128(c.TotalPrice.String())
+	if err != nil {
+		return entity.Cart{}, err
+	}
+
+	cartItems, err := c.CartItems.Entity()
+	if err != nil {
+		return entity.Cart{}, err
+	}
+
+	return entity.Cart{
+		Id:            id,
+		UserId:        c.UserId,
+		UserAddressId: c.UserAddressId,
+		TotalQuantity: c.TotalQuantity,
+		TotalPrice:    totalPrice,
+		Status:        c.Status,
+		CartItems:     cartItems,
+	}, nil
+}
+
 func NewCart(cart entity.Cart) (Cart, error) {
 	totalPrice, err := decimal.NewFromString(cart.TotalPrice.String())
 	if err != nil {
@@ -46,6 +73,19 @@ func NewCart(cart entity.Cart) (Cart, error) {
 
 type Carts []Cart
 
+func (cs Carts) Entity() (entity.Carts, error) {
+	carts := entity.Carts{}
+	for _, c := range cs {
+		cart, err := c.Entity()
+		if err != nil {
+			return entity.Carts{}, err
+		}
+
+		carts = append(carts, cart)
+	}
+	return carts, nil
+}
+
 func NewCarts(carts entity.Carts) (Carts, error) {
 	respCarts := Carts{}
 	for _, cart := range carts {
@@ -65,6 +105,32 @@ type CartItem struct {
 	Quantity        int32           `json:"quantity"`
 	PricePerProduct decimal.Decimal `json:"price_per_product"`
 	TotalPrice      decimal.Decimal `json:"total_price"`
+}
+
+func (ci CartItem) Entity() (entity.CartItem, error) {
+	id, err := primitive.ObjectIDFromHex(ci.Id)
+	if err != nil {
+		return entity.CartItem{}, err
+	}
+
+	totalPrice, err := primitive.ParseDecimal128(ci.TotalPrice.String())
+	if err != nil {
+		return entity.CartItem{}, err
+	}
+
+	pricePerProduct, err := primitive.ParseDecimal128(ci.PricePerProduct.String())
+	if err != nil {
+		return entity.CartItem{}, err
+	}
+
+	return entity.CartItem{
+		Id:              id,
+		CartId:          ci.CartId,
+		ProductId:       ci.ProductId,
+		Quantity:        ci.Quantity,
+		PricePerProduct: pricePerProduct,
+		TotalPrice:      totalPrice,
+	}, nil
 }
 
 func NewCartItem(cartItem entity.CartItem) (CartItem, error) {
@@ -89,6 +155,20 @@ func NewCartItem(cartItem entity.CartItem) (CartItem, error) {
 }
 
 type CartItems []CartItem
+
+func (cis CartItems) Entity() (entity.CartItems, error) {
+	cartItems := entity.CartItems{}
+
+	for _, ci := range cis {
+		cartItem, err := ci.Entity()
+		if err != nil {
+			return entity.CartItems{}, err
+		}
+		cartItems = append(cartItems, cartItem)
+	}
+
+	return cartItems, nil
+}
 
 func NewCartItems(cartItems entity.CartItems) (CartItems, error) {
 	respCartItems := CartItems{}
@@ -145,4 +225,12 @@ type RequestAddItemToCart struct {
 	UserAddressId int64 `json:"user_address_id"`
 	ProductId     int64 `json:"product_id"`
 	Quantity      uint  `json:"quantity"`
+}
+
+type RequestDeleteCart struct {
+	UserId string
+}
+
+func (r RequestDeleteCart) UserIdInt() (int64, error) {
+	return strconv.ParseInt(r.UserId, 10, 64)
 }

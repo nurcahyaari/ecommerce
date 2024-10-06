@@ -207,6 +207,16 @@ func NewUserAddress(userAddress entity.UserAddress) UserAddress {
 
 type UserAddresses []UserAddress
 
+func (uas UserAddresses) Entity() entity.UserAddresses {
+	ent := entity.UserAddresses{}
+
+	for _, ua := range uas {
+		ent = append(ent, ua.Entity())
+	}
+
+	return ent
+}
+
 func NewUserAddresses(userAddresses entity.UserAddresses) UserAddresses {
 	resp := UserAddresses{}
 

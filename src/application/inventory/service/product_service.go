@@ -135,3 +135,14 @@ func (s *ProductService) MoveWarehouse(ctx context.Context, request transferobje
 
 	return transferobject.NewProduct(product), nil
 }
+
+func (s *ProductService) AddReserveStock(ctx context.Context, request transferobject.RequestReserveStoct) (transferobject.ResponseReserveStock, error) {
+	resp, err := s.stockRepositoryWriter.ReserveStocks(ctx, request.Data.ProductStocks())
+	if err != nil {
+		s.log.Error().
+			Err(err).
+			Interface("request.body", request).
+			Msg("AddReserveStock.ReserveStocks")
+	}
+	return transferobject.NewResponseReserveStock(resp), nil
+}

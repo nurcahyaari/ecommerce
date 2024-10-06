@@ -120,6 +120,14 @@ func (us UserAddresses) One() (UserAddress, bool) {
 	return us[0], true
 }
 
+func (us UserAddresses) MapById() MapUserAddress {
+	mapById := make(MapUserAddress)
+	for _, u := range us {
+		mapById[u.Id] = u
+	}
+	return mapById
+}
+
 type UserAddressFilter struct {
 	Or      *UserAddressFilter
 	Ids     []int64
@@ -169,3 +177,5 @@ func (f UserAddressFilter) ComposeFilter() (string, []interface{}, error) {
 
 	return whereClause, args, nil
 }
+
+type MapUserAddress map[int64]UserAddress

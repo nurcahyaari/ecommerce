@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecommerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ecommerce
+  template:
+    metadata:
+      labels:
+        app: ecommerce
+    spec:
+      containers:
+      - name: ecommerce
+        image: ecommerce:latest
+        ports:
+        - containerPort: 3000
+        env:
+          - name: APPLICATION_TRANSPORT_GRPC_PORT
+            value: "3001"
+          - name: APPLICATION_TRANSPORT_HTTP_PORT
+            value: "3000"
+          - name: APPLICATION_GRACEFUL_MAX_SECOND
+            value: "20s"
+          - name: AUTH_JWT_TOKEN_PUBLIC_KEY
+            value: "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAw/oZbh6vDshOD7cqfUsj\nhXitgaiasXhUHF+EryNKVEVss38x9u6qYEyyYjo76bOVUrzMCsVvBkCR1E+Ga7XW\n5TICSS8yv3krvkYI0nrr0Fl7oqmiE/GpFbSw5WqqCjqo9PhRpfc/Y5wMGffJ1g7N\n2i1YpbR3KXC7klbdEx+oJR6hS/+b3Jq9oq0SBh9RO06pSmm5CX9vQrhPBwKbkSUN\nSzFxZcVl5uMRX0lrmycT2i2JZjywhpAPVr+/fRw8hoWffAjW8QSRQvEe6pGA8oas\nDEfuSN+YEmYudIWod5pVARXOdjC/VJWHrAuurtShhKu/fwsJFkt8bV9aEKEsLij2\npbe8BS5twW6aDToo29XrDJqAQScROdRY9Cvsr0gBn8Xi5ueQTdEVAl5iYJRE84Tl\nZww7OGaznjH/5NVj9MWQEG+uRMwjlp3P5igTHd2kdLd2OFECzaQWCZfd4Gb+AwUN\nzFUXuxnfm4ZTVmuRrCwq/bLoW8ief7uf6G1326sqHnGGbf9HasbVs7jiJIuMQaar\n601wewwFOTofsGbshbxuvubvrAp/jz5GDAsoArQBEoj0in46kT9W7KYoMmfmSj3E\nkP+LDqjd5qTDdQgban69nSHL1CiKFhxFrL2fz/Aw5VFW7r2RNFU8DjehECv0PclO\nHBMBFuAhVonYno5+wf75fIcCAwEAAQ==\n-----END PUBLIC KEY-----"
+          - name: AUTH_JWT_TOKEN_PRIVATE_KEY
+            value: "-----BEGIN RSA PRIVATE KEY-----\n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\n-----END RSA PRIVATE KEY-----"
+          - name: AUTH_JWT_TOKEN_DURATION
+            value: "1h"
+          - name: AUTH_JWT_TOKEN_REFRESH_DURATION
+            value: "1h"
+          - name: DB_MYSQL_HOST
+            value: "127.0.0.1"
+          - name: DB_MYSQL_PORT
+            value: "3306"
+          - name: DB_MYSQL_NAME
+            value: "ecommerce"
+          - name: DB_MYSQL_USER
+            value: "root"
+          - name: DB_MYSQL_PASS
+            value: ""
+          - name: DB_MYSQL_MAX_POOL_SIZE
+            value: "10"
+          - name: DB_MONGODB_HOST
+            value: "127.0.0.1"
+          - name: DB_MONGODB_PORT
+            value: "27017"
+          - name: DB_MONGODB_NAME
+            value: "ecommerce"
+          - name: DB_MONGODB_USER
+            value: ""
+          - name: DB_MONGODB_PASS
+            value: ""
+          - name: DB_MONGODB_MAX_POOL_SIZE
+            value: "10"

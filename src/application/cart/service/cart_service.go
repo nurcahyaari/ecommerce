@@ -200,3 +200,23 @@ func (s *CartService) AddItemToCart(ctx context.Context, request transferobject.
 
 	return cartResp, nil
 }
+
+func (s *CartService) DeleteCart(ctx context.Context, request transferobject.RequestDeleteCart) error {
+	userId, err := request.UserIdInt()
+	if err != nil {
+		s.log.Error().Err(err).
+			Msg("DeleteCart.request.UserIdInt")
+		return err
+	}
+
+	err = s.cartRepo.DeleteCart(ctx, entity.CartFilter{
+		UserId: null.IntFrom(userId),
+	})
+	if err != nil {
+		s.log.Error().Err(err).
+			Msg("DeleteCart.cartRepo.DeleteCart")
+		return err
+	}
+
+	return nil
+}
