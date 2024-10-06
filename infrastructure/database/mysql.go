@@ -38,11 +38,11 @@ func NewMysql(cfg config.Config) *SQLDatabase {
 	sHost := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", dbUser, dbPass, dbHost, dbPort, dbName)
 
 	db, err := sqlx.Connect("mysql", sHost)
-	db.SetMaxOpenConns(maxPoolSize)
-
 	if err != nil {
 		log.Fatal().Msgf("Error to loading Database %s", err)
 	}
+
+	db.SetMaxOpenConns(maxPoolSize)
 
 	log.Info().Str("Name", dbName).Msg("Success connect to DB")
 	return &SQLDatabase{

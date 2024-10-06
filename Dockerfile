@@ -1,32 +1,29 @@
 # Use the specified Go version
 ARG GO_VERSION=1.22.3
-# Builder stage
+
+# Builder
 FROM golang:${GO_VERSION}-alpine as builder
 
-# Install dependencies
-RUN apk update && apk add --no-cache git make build-base
+RUN apk update && \
+    apk --update add git make build-base
 
-# Set the working directory
 WORKDIR /app
 
 COPY . .
 
-RUN GOFLAGS="-buildvcs=false" go build -o goBinary ./main.go
+RUN go generate ./...
+RUN go build -o main .
 
-# Final stage
+# Distribution
 FROM alpine:latest
 
-# Install necessary packages for the final image
-RUN apk update && apk add --no-cache ca-certificates tzdata
+RUN apk update && apk --no-cache add ca-certificates && \
+    apk --update --no-cache add tzdata
 
-# Set the working directory in the final image
 WORKDIR /app 
 
-# Expose the application port
-EXPOSE 9090
+EXPOSE 3000
 
-# Copy the built binary from the builder stage
-COPY --from=builder /app/goBinary /app/
+COPY --from=builder /app/main /app
 
-# Command to run the application
-CMD ["/app/goBinary"]
+CMD /app/main

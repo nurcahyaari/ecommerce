@@ -15,6 +15,7 @@ func (h *HttpHandle) SearchUsers(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.userService.SearchUsers(r.Context(), request)
 	if err != nil {
+		h.log.Error().Err(err).Stack().Msg("SearchUsers.SearchUsers")
 		response.Err[any](w,
 			response.SetErr[any](err),
 			response.SetHttpCode[any](500))

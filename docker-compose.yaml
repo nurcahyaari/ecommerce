@@ -1,18 +1,42 @@
 version: '3.8'
 
 services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    networks:
+      - localnetwork
+
+  mariadb:
+    image: mariadb:latest
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: ecommerce
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    networks:
+      - localnetwork
+  
   app:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    depends_on:
-      - mongodb
+    links:
       - mariadb
+    depends_on:
+      mariadb:
+        condition: service_started
+        restart: true
+      mongodb:
+        condition: service_started
+    restart: on-failure
     environment:
       APPLICATION_TRANSPORT_HTTP_PORT: 3000
-      APPLICATION_TRANSPORT_GRPC_PORT: 3001
       APPLICATION_GRACEFUL_MAX_SECOND: 20s
       AUTH_JWT_TOKEN_PUBLIC_KEY: |
         -----BEGIN PUBLIC KEY-----
@@ -97,20 +121,9 @@ services:
       DB_MONGODB_PASS: ""
       DB_MONGODB_MAX_POOL_SIZE: 10
     volumes:
-      - .:/app
-      - .env:/app/.env  
+      - ./.env:/app/.env 
+    networks:
+      - localnetwork
 
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-
-  mariadb:
-    image: mariadb:latest
-    ports:
-      - "3306:3306"
-    environment:
-      MARIADB_ROOT_PASSWORD: root_password
-      MARIADB_USER: user
-      MARIADB_PASSWORD: password
-      MARIADB_DATABASE: ecommerce
+networks:
+  localnetwork: {}

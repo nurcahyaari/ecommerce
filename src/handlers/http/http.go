@@ -3,9 +3,11 @@ package http
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/nurcahyaari/ecommerce/src/domain/service"
+	"github.com/rs/zerolog"
 )
 
 type HttpHandle struct {
+	log              zerolog.Logger
 	userService      service.UserServicer
 	authService      service.AuthServicer
 	productService   service.ProductServicer
@@ -44,6 +46,7 @@ func (h HttpHandle) Router(r *chi.Mux) {
 }
 
 func NewHttpHandler(
+	log zerolog.Logger,
 	userService service.UserServicer,
 	authService service.AuthServicer,
 	productService service.ProductServicer,
@@ -52,6 +55,7 @@ func NewHttpHandler(
 	orderService service.OrderServicer,
 ) *HttpHandle {
 	httpHandle := &HttpHandle{
+		log:              log,
 		userService:      userService,
 		authService:      authService,
 		productService:   productService,

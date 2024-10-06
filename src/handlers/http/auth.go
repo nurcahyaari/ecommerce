@@ -13,6 +13,7 @@ func (h *HttpHandle) Login(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
+		h.log.Error().Err(err).Stack().Msg("Login.Decode")
 		response.Err[string](w,
 			response.SetMessage[string](err.Error()))
 		return
@@ -20,6 +21,7 @@ func (h *HttpHandle) Login(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.authService.GenerateToken(r.Context(), request)
 	if err != nil {
+		h.log.Error().Err(err).Stack().Msg("Login.GenerateToken")
 		response.Err[any](w,
 			response.SetErr[any](err),
 			response.SetHttpCode[any](500))

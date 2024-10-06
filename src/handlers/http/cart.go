@@ -33,6 +33,7 @@ func (h *HttpHandle) AddItemToCart(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
+		h.log.Error().Err(err).Stack().Msg("AddItemToCart.Decode")
 		response.Err[string](w,
 			response.SetMessage[string](err.Error()))
 		return
@@ -40,6 +41,7 @@ func (h *HttpHandle) AddItemToCart(w http.ResponseWriter, r *http.Request) {
 
 	cart, err := h.cartService.AddItemToCart(ctx, request)
 	if err != nil {
+		h.log.Error().Err(err).Stack().Msg("AddItemToCart.AddItemToCart")
 		response.Err[any](w,
 			response.SetErr[any](err),
 			response.SetHttpCode[any](500))

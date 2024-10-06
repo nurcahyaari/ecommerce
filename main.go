@@ -53,7 +53,7 @@ func main() {
 	logger := logger.NewLogger()
 	cfg := config.Get()
 
-	var db *database.SQLDatabase
+	db := &database.SQLDatabase{}
 	if cfg.DB.MySQL.WithMigration {
 		migrationCfg := config.Get()
 		migrationCfg.DB.MySQL.Name = ""
@@ -67,10 +67,13 @@ func main() {
 		dbMigration.DB.Close()
 
 		db = database.NewMysql(cfg)
-		runMigrations(db.DB.DB)
-	} else {
-		db = database.NewMysql(cfg)
+		err = runMigrations(db.DB.DB)
+		if err != nil {
+			logger.Fatal().Err(err).Msg("failure to migrate")
+		}
 	}
+
+	db = database.NewMysql(cfg)
 
 	mongoDb, err := database.NewMongoDB(&cfg)
 	if err != nil {
@@ -125,7 +128,7 @@ func main() {
 	)
 	orderService := ordersvc.NewOrderService(&cfg, logger, orderAggregatorRepo, userAddressSvc, cartSvc, productSvc, orderRepoReader, orderRepoWrite)
 
-	httpHandler := httphandler.NewHttpHandler(userSvc, authSvc, productSvc, warehouseSvc, cartSvc, orderService)
+	httpHandler := httphandler.NewHttpHandler(logger, userSvc, authSvc, productSvc, warehouseSvc, cartSvc, orderService)
 
 	httpRouter := router.NewHttpRouter(httpHandler)
 	httpServer := http.New(cfg, httpRouter)

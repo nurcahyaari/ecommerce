@@ -13,6 +13,7 @@ func (h *HttpHandle) WarehouseActivationStatus(w http.ResponseWriter, r *http.Re
 
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
+		h.log.Error().Err(err).Stack().Msg("WarehouseActivationStatus.Decode")
 		response.Err[string](w,
 			response.SetMessage[string](err.Error()))
 		return
@@ -20,6 +21,7 @@ func (h *HttpHandle) WarehouseActivationStatus(w http.ResponseWriter, r *http.Re
 
 	resp, err := h.warehouseService.OpenCloseWarehouse(r.Context(), request)
 	if err != nil {
+		h.log.Error().Err(err).Stack().Msg("WarehouseActivationStatus.OpenCloseWarehouse")
 		response.Err[any](w,
 			response.SetErr[any](err),
 			response.SetHttpCode[any](500))

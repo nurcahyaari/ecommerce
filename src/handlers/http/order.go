@@ -15,6 +15,7 @@ func (h *HttpHandle) CreateOrder(w http.ResponseWriter, r *http.Request) {
 
 	order, err := h.orderService.CreateOrder(ctx, request)
 	if err != nil {
+		h.log.Error().Err(err).Stack().Msg("CreateOrder.CreateOrder")
 		response.Err[any](w,
 			response.SetErr[any](err),
 			response.SetHttpCode[any](500))
