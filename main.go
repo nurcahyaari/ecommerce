@@ -2,11 +2,8 @@ package main
 
 import (
 	"context"
-	"database/sql"
-	"log"
 
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/mysql"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/nurcahyaari/ecommerce/config"
 	"github.com/nurcahyaari/ecommerce/infrastructure/database"
 	"github.com/nurcahyaari/ecommerce/internal/graceful"
@@ -27,53 +24,18 @@ import (
 	httphandler "github.com/nurcahyaari/ecommerce/src/handlers/http"
 )
 
-func runMigrations(db *sql.DB) error {
-	driver, err := mysql.WithInstance(db, &mysql.Config{})
-	if err != nil {
-		return err
-	}
-
-	m, err := migrate.NewWithDatabaseInstance(
-		"file://migrations",
-		"mysql",
-		driver,
-	)
-	if err != nil {
-		return err
-	}
-
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		return err
-	}
-
-	return nil
-}
-
 func main() {
 	logger := logger.NewLogger()
 	cfg := config.Get()
 
-	db := &database.SQLDatabase{}
+	db := database.NewMysql(cfg)
 	if cfg.DB.MySQL.WithMigration {
-		migrationCfg := config.Get()
-		migrationCfg.DB.MySQL.Name = ""
-		dbMigration := database.NewMysql(migrationCfg)
-		_, err := dbMigration.DB.Exec("CREATE DATABASE IF NOT EXISTS " + cfg.DB.MySQL.Name)
+		err := db.RunMigrations(cfg)
 		if err != nil {
-			log.Fatalf("failed to create database: %v", err)
-		}
-
-		// Connect to the newly created database
-		dbMigration.DB.Close()
-
-		db = database.NewMysql(cfg)
-		err = runMigrations(db.DB.DB)
-		if err != nil {
-			logger.Fatal().Err(err).Msg("failure to migrate")
+			logger.Fatal().Err(err).
+				Msg("failure to migrate")
 		}
 	}
-
-	db = database.NewMysql(cfg)
 
 	mongoDb, err := database.NewMongoDB(&cfg)
 	if err != nil {

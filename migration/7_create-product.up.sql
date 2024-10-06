@@ -1,11 +1,10 @@
-CREATE TABLE `order` (
+CREATE TABLE IF NOT EXISTS `product` (
     id BIGINT(20) PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    user_id BIGINT(20) NOT NULL,
-    total_price DECIMAL(12,2) NOT NULL DEFAULT 0,
-    total_quantity INT(11) NOT NULL DEFAULT 0,
-    order_code VARCHAR(20) NOT NULL,
-    order_status INT(11) NOT NULL DEFAULT 1,
-    expired_order DATETIME NULL DEFAULT NULL, 
+    store_id BIGINT(20) NOT NULL,
+    warehouse_id BIGINT(20) NOT NULL,
+    name VARCHAR(128) NOT NULL,
+    price DECIMAL(12,2) DEFAULT 0 NOT NULL,
+    is_actived BOOLEAN DEFAULT 0 NOT NULL,
     is_removed BOOLEAN DEFAULT 0 NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_by BIGINT(20),
@@ -13,5 +12,6 @@ CREATE TABLE `order` (
     updated_by BIGINT(20),
     deleted_at DATETIME DEFAULT NULL,
     deleted_by BIGINT(20),
-    FOREIGN KEY (user_id) REFERENCES user(id)
+    FOREIGN KEY (store_id) REFERENCES store(id),
+    FOREIGN KEY (warehouse_id) REFERENCES warehouse(id)
 );

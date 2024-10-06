@@ -1,4 +1,4 @@
-CREATE TABLE `order_detail` (
+CREATE TABLE IF NOT EXISTS `order_detail` (
     id BIGINT(20) PRIMARY KEY NOT NULL AUTO_INCREMENT,
     order_id BIGINT(20) NOT NULL,
     order_receipt_id BIGINT(20) NOT NULL,

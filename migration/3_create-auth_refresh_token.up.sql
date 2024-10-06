@@ -1,4 +1,4 @@
-CREATE TABLE `auth_refresh_token` (
+CREATE TABLE IF NOT EXISTS `auth_refresh_token` (
     id BIGINT(20) PRIMARY KEY NOT NULL AUTO_INCREMENT,
     user_id BIGINT(20) NOT NULL,
     token VARCHAR(60) NOT NULL,

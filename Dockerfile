@@ -25,5 +25,6 @@ WORKDIR /app
 EXPOSE 3000
 
 COPY --from=builder /app/main /app
+COPY --from=builder /app/migration /app
 
 CMD /app/main

@@ -5,6 +5,9 @@ import (
 	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/mysql"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jmoiron/sqlx"
 	"github.com/nurcahyaari/ecommerce/config"
 	"github.com/rs/zerolog/log"
@@ -19,6 +22,30 @@ type SQLDatabaseTrx[T any] interface {
 	BeginTx(ctx context.Context) (T, error)
 	Commit(ctx context.Context) error
 	Rollback(ctx context.Context) error
+}
+
+func (db *SQLDatabase) RunMigrations(cfg config.Config) error {
+	driver, err := mysql.WithInstance(db.DB.DB, &mysql.Config{
+		DatabaseName: cfg.DB.MySQL.Name,
+	})
+	if err != nil {
+		return err
+	}
+
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://./migration",
+		"mysql",
+		driver,
+	)
+	if err != nil {
+		return err
+	}
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return err
+	}
+
+	return nil
 }
 
 func NewMysql(cfg config.Config) *SQLDatabase {

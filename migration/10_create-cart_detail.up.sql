@@ -1,4 +1,4 @@
-CREATE TABLE `cart_detail` (
+CREATE TABLE IF NOT EXISTS `cart_detail` (
     id BIGINT(20) PRIMARY KEY NOT NULL AUTO_INCREMENT,
     cart_id BIGINT(20) NOT NULL,
     product_id BIGINT(20) NOT NULL,

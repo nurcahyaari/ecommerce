@@ -1,8 +1,10 @@
-CREATE TABLE `warehouse` (
+
+CREATE TABLE IF NOT EXISTS `user` (
     id BIGINT(20) PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    store_id BIGINT(20) NOT NULL,
-    name VARCHAR(128) NOT NULL,
-    location VARCHAR(256),
+    `name` VARCHAR(128) NOT NULL,
+    email VARCHAR(128),
+    phone VARCHAR(15),
+    `password` VARCHAR(128),
     is_actived BOOLEAN DEFAULT 0 NOT NULL,
     is_removed BOOLEAN DEFAULT 0 NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -11,5 +13,6 @@ CREATE TABLE `warehouse` (
     updated_by BIGINT(20),
     deleted_at DATETIME DEFAULT NULL,
     deleted_by BIGINT(20),
-    FOREIGN KEY (store_id) REFERENCES store(id)
+    UNIQUE (email),
+    UNIQUE (phone)
 );
